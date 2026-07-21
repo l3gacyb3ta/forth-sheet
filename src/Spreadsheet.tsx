@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo, type KeyboardEvent } from 'react'
 import './Spreadsheet.css'
-import { evaluateCode, newRuntime } from './Lang'
+import { evaluateCode, formatValue, newRuntime } from './Lang'
 import { openSpace, type Space, type Peer } from './inc/automerge-kiss'
 
 const ROWS = 50
@@ -52,7 +52,7 @@ async function evaluateAll(data: CellData): Promise<CellData> {
     runtime.stack = []
     try {
       evaluateCode(raw.slice(1), next, runtime)
-      next[key] = { ...next[key], computed: String(runtime.pop().data) }
+      next[key] = { ...next[key], computed: formatValue(runtime.pop()) }
     } catch (e) {
       console.error(`Error evaluating cell ${key}:`, e)
       next[key] = { ...next[key], computed: '#ERROR' }
@@ -385,7 +385,7 @@ export default function Spreadsheet() {
       const { row, col } = parseCellAddress(addr)
       return cellKey(row, col)
     } catch (e) {
-      return null
+      return ""
     }
   }
 

@@ -144,8 +144,6 @@ export class Space<T extends SpaceData = SpaceData> {
   /** @internal */
   private repo: Repo;
   /** @internal */
-  private useHash: boolean;
-  /** @internal */
   private changeListeners = new Set<(data: T) => void>();
   /** @internal */
   private peerListeners = new Set<(peers: Peer[]) => void>();
@@ -154,17 +152,14 @@ export class Space<T extends SpaceData = SpaceData> {
   /** @internal */
   private myPeerId = Math.random().toString(36).slice(2, 10);
   /** @internal */
-  private myPresence: unknown = undefined;
-  /** @internal */
   private peerSweep?: ReturnType<typeof setInterval>;
   /** @internal */
   private closed = false;
 
   /** @internal Use {@link openSpace} instead of constructing directly. */
-  constructor(repo: Repo, handle: DocHandle<T>, useHash: boolean) {
+  constructor(repo: Repo, handle: DocHandle<T>, _useHash: boolean) {
     this.repo = repo;
     this.handle = handle;
-    this.useHash = useHash;
 
     // Re-broadcast Automerge's change event to our simpler listeners.
     this.handle.on("change", () => this.emitChange());
@@ -261,7 +256,6 @@ export class Space<T extends SpaceData = SpaceData> {
    *   space.setPresence({ name: "Sam", cursor: { x, y } });
    */
   setPresence(presence: unknown): void {
-    this.myPresence = presence;
     this.handle.broadcast({
       kind: "kiss-presence",
       id: this.myPeerId,
